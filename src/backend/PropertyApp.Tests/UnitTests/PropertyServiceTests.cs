@@ -84,4 +84,63 @@ public class PropertyServiceTests
         Assert.That(result.Items, Is.Empty);
         Assert.That(result.Total, Is.EqualTo(0));
     }
+
+    [Test]
+    public async Task GetPropertyByIdAsync_ShouldReturnProperty_WhenExists()
+    {
+        var property = new PropertyE
+        {
+            Id = "1",
+            Name = "Casa Bonita",
+            Address = "Calle 1",
+            Price = 100000,
+            IdOwner = "O1"
+        };
+
+        _propertyRepositoryMock
+            .Setup(r => r.GetByIdAsync("1"))
+            .ReturnsAsync((property, "Juan Pérez", "img1.jpg"));
+
+        var result = await _propertyService.GetPropertyByIdAsync("1");
+
+        Assert.IsNotNull(result);
+        Assert.That(result!.Id, Is.EqualTo("1"));
+        Assert.That(result.Name, Is.EqualTo("Casa Bonita"));
+        Assert.That(result.OwnerName, Is.EqualTo("Juan Pérez"));
+        Assert.That(result.MainImage, Is.EqualTo("img1.jpg"));
+    }
+
+    [Test]
+    public async Task GetPropertyByIdAsync_ShouldReturnNull_WhenNotFound()
+    {
+        _propertyRepositoryMock
+            .Setup(r => r.GetByIdAsync("99"))
+            .ReturnsAsync((ValueTuple<PropertyE, string?, string?>?)null);
+
+        var result = await _propertyService.GetPropertyByIdAsync("99");
+
+        Assert.IsNull(result);
+    }
+
+    [Test]
+    public async Task GetPropertyByIdAsync_ShouldReturnEmptyImage_WhenNoImage()
+    {
+        var property = new PropertyE
+        {
+            Id = "2",
+            Name = "Apartamento Moderno",
+            Address = "Calle 2",
+            Price = 200000,
+            IdOwner = "O2"
+        };
+
+        _propertyRepositoryMock
+            .Setup(r => r.GetByIdAsync("2"))
+            .ReturnsAsync((property, "María López", null));
+
+        var result = await _propertyService.GetPropertyByIdAsync("2");
+
+        Assert.IsNotNull(result);
+        Assert.That(result!.MainImage, Is.EqualTo(string.Empty));
+    }
 }

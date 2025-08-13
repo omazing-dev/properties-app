@@ -30,5 +30,15 @@ namespace PropertyApp.Web.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            var property = await _propertyService.GetPropertyByIdAsync(id);
+            if (property == null)
+                return NotFound(new { message = "Property not found" });
+
+            return Ok(property);
+        }
     }
 }

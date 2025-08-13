@@ -48,6 +48,26 @@ namespace PropertyApp.Application.Services
                 PageSize = pageSize
             };
         }
+        public async Task<PropertyDetailDTO?> GetPropertyByIdAsync(string id)
+        {
+            var result = await _propertyRepository.GetByIdAsync(id);
+            if (result == null)
+                return null;
+
+            var (property, ownerName, image) = result.Value;
+
+            return new PropertyDetailDTO
+            {
+                Id = property.Id,
+                Name = property.Name,
+                Address = property.Address,
+                Price = property.Price,
+                Year = property.Year,
+                CodeInternal = property.CodeInternal,
+                OwnerName = ownerName ?? string.Empty,
+                MainImage = image ?? string.Empty
+            };
+        }
     }
 }
 

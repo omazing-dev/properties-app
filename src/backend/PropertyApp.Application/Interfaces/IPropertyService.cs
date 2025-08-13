@@ -16,5 +16,8 @@ namespace PropertyApp.Application.Interfaces
            decimal? maxPrice,
            int page,
            int pageSize);
+
+        Task<PropertyDetailDTO?> GetPropertyByIdAsync(string id);
+
     }
 }

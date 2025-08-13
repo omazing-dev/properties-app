@@ -9,11 +9,13 @@ namespace PropertyApp.Infrastructure.Repositories
     {
         private readonly IMongoCollection<PropertyE> _properties;
         private readonly IMongoCollection<PropertyImage> _images;
+        private readonly IMongoCollection<Owner> _owners;
 
         public PropertyRepository(MongoDbContext context)
         {
             _properties = context.Properties;
             _images = context.PropertyImages;
+            _owners = context.Owners;
         }
 
         public async Task<(IEnumerable<(PropertyE Property, string? Image)>, int Total)> GetFilteredAsync(
@@ -59,6 +61,20 @@ namespace PropertyApp.Infrastructure.Repositories
             }
 
             return (result, total);
+        }
+        public async Task<(PropertyE Property, string? OwnerName, string? Image)?> GetByIdAsync(string id)
+        {
+            var property = await _properties.Find(p => p.Id == id).FirstOrDefaultAsync();
+            if (property == null)
+                return null;
+
+            var owner = await _owners.Find(o => o.Id == property.IdOwner).FirstOrDefaultAsync();
+
+            var image = await _images
+                .Find(i => i.IdProperty == property.Id && i.Enabled)
+                .FirstOrDefaultAsync();
+
+            return (property, owner?.Name, image?.File);
         }
     }
 }
