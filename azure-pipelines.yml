@@ -1,0 +1,53 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+  - stage: BuildAndTest
+    displayName: "Build & Test (.NET & Frontend)"
+    jobs:
+      - job: Backend
+        displayName: "Backend CI"
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '8.x'
+          
+          - script: |
+              cd src/backend
+              dotnet restore
+              dotnet build --configuration $(buildConfiguration)
+              dotnet test --configuration $(buildConfiguration) --no-build --verbosity normal
+            displayName: "Restore, Build & Test Backend"
+
+      - job: Frontend
+        displayName: "Frontend CI"
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+          
+          - script: |
+              cd src/frontend
+              npm install
+              npm run build
+            displayName: "Install & Build Frontend"
+
+  - stage: Deploy
+    displayName: "Deploy"
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: DeployJob
+        displayName: "Deploy Application"
+        steps:
+          - script: echo "Aquí va mi script de despliegue o publicación"
+            displayName: "Deploy Script"
