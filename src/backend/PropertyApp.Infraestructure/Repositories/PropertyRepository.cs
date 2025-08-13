@@ -2,22 +2,27 @@
 using PropertyApp.Application.Interfaces;
 using PropertyApp.Domain.Entities;
 using PropertyApp.Infraestructure.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PropertyApp.Infraestructure.Repositories
+namespace PropertyApp.Infrastructure.Repositories
 {
     public class PropertyRepository : IPropertyRepository
     {
-        private readonly IMongoCollection<PropertyE> _collection;
+        private readonly IMongoCollection<PropertyE> _properties;
+        private readonly IMongoCollection<PropertyImage> _images;
+
         public PropertyRepository(MongoDbContext context)
         {
-            _collection = context.Properties;
+            _properties = context.Properties;
+            _images = context.PropertyImages;
         }
-        public async Task<(IEnumerable<PropertyE> Properties, int Total)> GetFilteredAsync(string? name, string? address, decimal? minPrice, decimal? maxPrice, int page, int pageSize)
+
+        public async Task<(IEnumerable<(PropertyE Property, string? Image)>, int Total)> GetFilteredAsync(
+            string? name,
+            string? address,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int page,
+            int pageSize)
         {
             var filterBuilder = Builders<PropertyE>.Filter;
             var filter = filterBuilder.Empty;
@@ -34,15 +39,26 @@ namespace PropertyApp.Infraestructure.Repositories
             if (maxPrice.HasValue)
                 filter &= filterBuilder.Lte(p => p.Price, maxPrice.Value);
 
-            var total = (int)await _collection.CountDocumentsAsync(filter);
+            var total = (int)await _properties.CountDocumentsAsync(filter);
 
-            var properties = await _collection
+            var properties = await _properties
                 .Find(filter)
                 .Skip((page - 1) * pageSize)
                 .Limit(pageSize)
                 .ToListAsync();
 
-            return (properties, total);
+            var result = new List<(PropertyE, string?)>();
+
+            foreach (var prop in properties)
+            {
+                var image = await _images
+                    .Find(i => i.IdProperty == prop.Id && i.Enabled)
+                    .FirstOrDefaultAsync();
+
+                result.Add((prop, image?.File));
+            }
+
+            return (result, total);
         }
     }
 }

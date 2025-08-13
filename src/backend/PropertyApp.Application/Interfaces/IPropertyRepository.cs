@@ -9,7 +9,7 @@ namespace PropertyApp.Application.Interfaces
 {
     public interface IPropertyRepository
     {
-        Task<(IEnumerable<PropertyE> Properties, int Total)> GetFilteredAsync(
+        Task<(IEnumerable<(PropertyE Property, string? Image)>, int Total)> GetFilteredAsync(
             string? name,
             string? address,
             decimal? minPrice,
