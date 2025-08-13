@@ -1,3 +1,6 @@
+using PropertyApp.Application.Interfaces;
+using PropertyApp.Application.Services;
+using PropertyApp.Infrastructure.Repositories;
 using PropertyApp.Web.Configurations;
 using static PropertyApp.Infraestructure.Seed.DataSeeder;
 
@@ -7,6 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMongoDb(builder.Configuration);
 
 builder.Services.AddTransient<DatabaseSeeder>();
+
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPropertyService, PropertyService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
