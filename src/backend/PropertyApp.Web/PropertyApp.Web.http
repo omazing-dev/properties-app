@@ -1,0 +1,6 @@
+@PropertyApp.Web_HostAddress = http://localhost:5082
+
+GET {{PropertyApp.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
