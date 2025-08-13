@@ -6,7 +6,22 @@ using static PropertyApp.Infraestructure.Seed.DataSeeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // Add services to the container.
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:5173") 
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddMongoDb(builder.Configuration);
 
 builder.Services.AddTransient<DatabaseSeeder>();
@@ -20,6 +35,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseCors("AllowFrontend");
 
 using (var scope = app.Services.CreateScope())
 {
