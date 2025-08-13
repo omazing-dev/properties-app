@@ -15,4 +15,8 @@
     <ProjectReference Include="..\PropertyApp.Domain\PropertyApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Seed\" />
+  </ItemGroup>
+
 </Project>
