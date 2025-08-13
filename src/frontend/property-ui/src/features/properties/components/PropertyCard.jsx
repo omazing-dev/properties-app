@@ -7,7 +7,7 @@ export default function PropertyCard({ property }) {
       className="block bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden"
     >
       <img
-        src={property.mainImage || "https://via.placeholder.com/400x300?text=Sin+Imagen"}
+        src={property.image || "https://via.placeholder.com/400x300?text=Sin+Imagen"}
         alt={property.name}
         className="w-full h-48 object-cover"
       />
